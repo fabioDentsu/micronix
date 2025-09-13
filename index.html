@@ -18,27 +18,18 @@
   .stage{position:fixed; inset:0; width:100%; height:100%}
   #bg{filter:blur(2px) saturate(120%)} #fx{pointer-events:none}
 
-  .logo{position:fixed; z-index:5; pointer-events:none; background:var(--ui-bg); border:1px solid rgba(255,255,255,.18);
-    backdrop-filter: blur(10px) saturate(140%); border-radius:14px; padding:10px 12px; box-shadow:0 10px 30px rgba(0,0,0,.35)}
-  .logo.tl{top:14px; left:14px} .logo.bl{bottom:14px; left:14px}
-  .logo img{display:block; height:28px; width:auto} .logo.bl img{height:30px}
+  /* Utility glass tile */
+  .tile{position:fixed; z-index:6; background:var(--ui-bg); border:1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(10px) saturate(140%); border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.35)}
 
+  .logo.bl{left:14px; bottom:14px; padding:10px 12px}
+  .logo.bl img{display:block; height:30px; width:auto}
+
+  /* Game logo (center top) */
   .gameLogo{position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:7; pointer-events:none;}
   .gameLogo img{height:80px; width:auto; display:block; filter:drop-shadow(0 8px 22px rgba(0,0,0,.35))}
-  @media (max-width:720px){ .gameLogo img{height:44px} }
-  @media (max-width:720px){ .logo.bl img{height:14px} }
-   @media (max-width:720px){ .logo.tl img{height:14px} }
-      @media (max-width:720px){ .coach{margin-bottom: -46px; margin-right: -50px;} }
-       @media (max-width:720px){ .settings{margin-left: -350px;}} 
-       @media (max-width:720px){ .field{width: 100px;}} 
-       @media (max-width:720px){ .energy {width:14px; height:min(18vh, 100px); border-radius:20px; }} 
-        @media (max-width:720px){ .energy.i{width:14px; height:min(18vh, 100px); border-radius:20px; }}
-           @media (max-width:720px){ .power{width: 60px; right: 0;}}  
-               @media (max-width:720px){ .powers{opacity: 1;margin-right: -220px;}}  
-                  @media (max-width:720px){ .hud{margin-top: -50px; }}  
-                  @media (max-width:720px){ .bubble.bubble{ opacity: 0;}}  
 
-  /* HUD (center top) */
+  /* HUD (center top under game logo) */
   .hud{
     position:fixed; left:50%; transform:translateX(-50%); top:110px; display:flex; gap:10px; align-items:center;
     padding:10px 14px; border-radius:16px; background:var(--ui-bg); backdrop-filter: blur(10px) saturate(140%);
@@ -50,11 +41,11 @@
   .thinBar{position:relative; width:160px; height:8px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18)}
   .thinBar>i{position:absolute; inset:0; transform-origin:left center; background:linear-gradient(90deg,#7ed3ff,#8ef6a0)}
 
-  /* Right powers panel (now shows Score + Time at top) */
+  /* Right powers panel (includes Score + Time) */
   .powers{
     position:fixed; right:14px; top:86px; z-index:6; display:flex; flex-direction:column; gap:10px;
     padding:12px; border-radius:16px; background:var(--ui-bg); border:1px solid rgba(255,255,255,.18);
-    backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35); min-width:280px;
+    backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35); min-width:260px;
   }
   .sideHead{display:flex; align-items:center; gap:12px}
   .badge{padding:6px 10px; border-radius:999px; background:var(--glass); border:1px solid rgba(255,255,255,.18); font-weight:800}
@@ -71,25 +62,35 @@
   .power:before,.power:after{content:""; position:absolute; inset:-40%; border-radius:50%; filter:blur(22px); z-index:-1; opacity:.85}
   .power:hover{transform:translateY(-1px);filter:saturate(2.1)}
   .power:active{transform:translateY(0) scale(.98); filter:saturate(5.1)}
-  .power.pain:before{background:radial-gradient(closest-side,#ff4d8d,#ff2f6b22);}
-  .power.pain:after {background:conic-gradient(from 140deg,#ff6aa7aa,#ff2f6b00 40%); mix-blend-mode:screen}
-  .power.infect:before{background:radial-gradient(closest-side,#3ad0ff,#1eb1ff22);}
-  .power.infect:after {background:conic-gradient(from 140deg,#5ddfffaa,#1eb1ff00 40%); mix-blend-mode:screen}
+  .power.pain:before{background:radial-gradient(closest-side,#ff4d8d,#ff2f6b22);} .power.pain:after {background:conic-gradient(from 140deg,#ff6aa7aa,#ff2f6b00 40%); mix-blend-mode:screen}
+  .power.infect:before{background:radial-gradient(closest-side,#3ad0ff,#1eb1ff22);} .power.infect:after {background:conic-gradient(from 140deg,#5ddfffaa,#1eb1ff00 40%); mix-blend-mode:screen}
   .cooldown{opacity:.55; filter:saturate(.6) grayscale(.18)}
   .btn{cursor:pointer; border:none; padding:10px 14px; border-radius:12px; font-weight:800; color:#06253a; background:var(--accent)}
   .btn.ghost{background:transparent; color:#d1eaff; border:1px solid rgba(255,255,255,.22)} .btn.small{padding:8px 10px; font-size:13px}
   .btn.ghost:hover{background: rgba(67, 224, 15, 0.22); color:#d1eaff; border:1px solid rgba(67, 224, 15, 0.62)} .btn.small{padding:8px 10px; font-size:13px}
 
-  /* Settings (left) */
+  /* Settings (left) – collapsible */
   .settings{
     position:fixed; left:14px; top:50%; transform:translateY(-50%); width:min(92vw,320px); z-index:6;
-    background:var(--ui-bg); border:1px solid rgba(255,255,255,.18); border-radius:16px; padding:12px; backdrop-filter: blur(10px); box-shadow:0 14px 40px rgba(0,0,0,.4)
+    background:var(--ui-bg); border:1px solid rgba(255,255,255,.18); border-radius:16px; padding:12px; backdrop-filter: blur(10px); box-shadow:0 14px 40px rgba(0,0,0,.4);
+    transition: transform .22s ease, opacity .22s ease;
   }
+  .settings.collapsed{ transform:translate(-110%, -50%); opacity:.0; }
   .settings h3{margin:4px 2px 10px}
   .field{display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center; margin:8px 0}
   .field label{font-size:13px; opacity:.9} .field output{font-variant-numeric: tabular-nums}
   input[type=range]{width:100%} .settings .row{justify-content:space-between}
   .btn.applied{background:#39e68b; color:#06321f}
+
+  /* Hamburger (replaces .logo.tl) */
+  .hamburger{
+    position:fixed; top:14px; left:14px; z-index:7; width:46px; height:46px; border-radius:12px; border:1px solid rgba(255,255,255,.18);
+    background:var(--ui-bg); backdrop-filter: blur(10px) saturate(140%); display:grid; place-items:center; cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .hamburger i,.hamburger i:before,.hamburger i:after{content:""; display:block; width:22px; height:2px; background:#eaf6ff; border-radius:2px; transition:transform .2s ease, opacity .2s ease}
+  .hamburger i:before{transform:translateY(-6px)} .hamburger i:after{transform:translateY(6px)}
+  .hamburger[aria-expanded="true"] i{background:transparent}
+  .hamburger[aria-expanded="true"] i:before{transform:rotate(45deg)} .hamburger[aria-expanded="true"] i:after{transform:rotate(-45deg)}
 
   /* Bottom-right: Coach + Energy */
   .rightStack{
@@ -116,6 +117,28 @@
     backdrop-filter: blur(12px) saturate(160%); border-radius:20px; padding:22px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.45)}
   .panel h1{margin:2px 0 10px; font-size:28px} .panel p{margin:6px 0 14px; opacity:.85}
   .row{display:flex; justify-content:center; gap:10px; margin-top:10px}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1024px){
+    .gameLogo img{height:64px}
+    .hud{top:88px}
+    .powers{min-width:240px; top:74px}
+  }
+  @media (max-width: 720px){
+    .gameLogo img{height:44px}
+    .hud{top:64px; gap:8px; padding:8px 10px}
+    .thinBar{width:120px}
+    .powers{right:12px; top:58px; min-width:210px; padding:10px}
+    .power{padding:10px 14px}
+    .timeBig{font-size:18px; min-width:38px}
+    .rightStack{right:12px; bottom:12px; gap:10px}
+    .coach{width:min(55vw, 300px); height:min(32vh, 240px)}
+    .energy{width:16px; height:min(22vh, 120px); border-radius:16px}
+    .bubble{display:none} /* keep tips off on small screens to avoid overlap */
+    /* settings collapsed by default on small devices */
+    .settings{width:min(92vw, 340px)}
+    .settings.collapsed{transform:translate(-110%, -50%); opacity:0}
+  }
 </style>
 </head>
 <body>
@@ -123,14 +146,17 @@
   <canvas id="game" class="stage"></canvas>
   <canvas id="fx" class="stage"></canvas>
 
-  <div class="logo tl"><img src="logo-1.svg" alt="Logo"></div>
-  <div class="logo bl"><img src="AIS.png" alt="AIS Logo"></div>
+  <!-- Hamburger menu (replaces old top-left logo) -->
+  <button class="hamburger" id="menuBtn" aria-expanded="false" aria-controls="settings"><i></i></button>
+
+  <!-- Keep bottom-left AIS logo -->
+  <div class="logo bl tile"><img src="AIS.png" alt="AIS Logo"></div>
+
   <div class="gameLogo"><img src="micronix.png" alt="Micronix"></div>
 
   <!-- HUD (center top) -->
   <div class="hud" id="hud">
     <div class="pill"><span class="label">Level</span><span class="value" id="level">1</span></div>
-    <!-- Level Score (moved here) -->
     <div class="pill">
       <span class="label">Level Score</span>
       <div class="thinBar" style="margin:0 8px;"><i id="nextFill" style="transform:scaleX(0)"></i></div>
@@ -138,7 +164,7 @@
     </div>
   </div>
 
-  <!-- Powers panel (right) header now shows Score + Time -->
+  <!-- Powers panel (right) -->
   <div class="powers">
     <div class="sideHead">
       <div class="badge">Score <span id="score">0</span></div>
@@ -161,7 +187,7 @@
     <div class="field"><label for="spawnR">Spawn Rate (germs/sec)</label><output id="spawnROut">0.80</output><input id="spawnR" type="range" min="0.4" max="5" step="0.05" value="0.80"></div>
     <div class="field"><label for="maxConc">Max Concurrent</label><output id="maxConcOut">40</output><input id="maxConc" type="range" min="10" max="160" step="5" value="40"></div>
     <div class="field"><label for="timeLimit">Time Limit (sec)</label><output id="timeLimitOut">75</output><input id="timeLimit" type="range" min="20" max="120" step="5" value="75"></div>
-    <div class="row"><button class="btn" id="applyBtn">Apply</button><button class="btn ghost" id="toggleBtn">Hide</button></div>
+    <div class="row"><button class="btn" id="applyBtn">Apply</button><button class="btn ghost" id="toggleBtn">Close</button></div>
   </aside>
 
   <!-- Bottom-right -->
@@ -248,7 +274,6 @@
   function drawBokeh(dt, now){
     bgx.clearRect(0,0,bg.width,bg.height);
 
-    // boss visual (slow float) drawn BEHIND the bokeh dots
     if(boss){
       const base = bossMood==='sad' ? bossSadImg : bossImg;
       if(base.complete){
@@ -299,7 +324,7 @@
   const pauseBtn  = document.getElementById('pauseBtn');
   const restartBtn= document.getElementById('restartBtn');
 
-  // settings
+  // settings & hamburger
   const controls = {
     sizeMin: document.getElementById('sizeMin'),
     sizeMax: document.getElementById('sizeMax'),
@@ -319,6 +344,8 @@
     toggleBtn: document.getElementById('toggleBtn'),
     box: document.getElementById('settings')
   };
+  const menuBtn = document.getElementById('menuBtn');
+
   function syncOutputs(){
     controls.outs.sizeMin.textContent=controls.sizeMin.value;
     controls.outs.sizeMax.textContent=controls.sizeMax.value;
@@ -344,7 +371,26 @@
     setTimeout(()=>{ b.textContent=old; b.classList.remove('applied'); },1200);
   }
   controls.applyBtn.onclick=applySettings;
-  controls.toggleBtn.onclick=()=>{ const hidden=controls.box.style.display==='none'; controls.box.style.display=hidden?'block':'none'; controls.toggleBtn.textContent=hidden?'Hide':'Show'; };
+
+  // Collapse/expand logic
+  function setCollapsed(collapsed){
+    controls.box.classList.toggle('collapsed', collapsed);
+    menuBtn.setAttribute('aria-expanded', (!collapsed).toString());
+  }
+  // Toggle by hamburger
+  menuBtn.addEventListener('click', ()=>{
+    const collapsed = controls.box.classList.contains('collapsed');
+    setCollapsed(!collapsed);
+  });
+  // Close button inside panel
+  controls.toggleBtn.onclick=()=> setCollapsed(true);
+
+  // Start with collapsed on small viewports
+  function initSettingsState(){
+    const small = window.matchMedia('(max-width: 720px)').matches;
+    setCollapsed(small);
+  }
+  initSettingsState(); addEventListener('resize', initSettingsState);
 
   // coach + bubble
   const coachImg = document.getElementById('coachImg');
@@ -411,47 +457,35 @@
     controls.timeLimit.value = Math.max(40, (+controls.timeLimit.value - 1));
     syncOutputs(); applySettings();
   }
-function showLevelBreak(completedLevel){
-  running = false; paused = false;
-  startPanel.style.display = 'none';
-  gameOverPanel.style.display = 'none';
-  bossPanel.style.display = 'none';
-  levelPanel.style.display = 'block';
-  document.getElementById('levelTitle').textContent = `Level ${completedLevel} Complete!`;
-  overlay.style.display = 'grid';
-}
-
-function levelUp(){
-  const completed = level;  // capture the level you just finished
-  if (level >= 3) {         // finishing level 3 -> Boss
-    startBossPlaceholder();
-    return;
+  function showLevelBreak(completedLevel){
+    running = false; paused = false;
+    startPanel.style.display = 'none';
+    gameOverPanel.style.display = 'none';
+    bossPanel.style.display = 'none';
+    levelPanel.style.display = 'block';
+    document.getElementById('levelTitle').textContent = `Level ${completedLevel} Complete!`;
+    overlay.style.display = 'grid';
   }
-  level++;                  // move up to the next level
-  levelScore = 0;
-  target = levelTarget(level);
-  showLevelBreak(completed);  // show correct level number
-}
-
+  function levelUp(){
+    const completed = level;
+    if (level >= 3) { startBossPlaceholder(); return; }
+    level++;
+    levelScore = 0;
+    target = levelTarget(level);
+    showLevelBreak(completed);
+  }
   function startBossPlaceholder(){ running=false; paused=false; boss=true; bossMood='normal'; levelPanel.style.display='none'; startPanel.style.display='none'; gameOverPanel.style.display='none'; bossPanel.style.display='block'; overlay.style.display='grid'; }
-
-  // public-ish helper to mark boss defeated
   function bossDefeated(){ bossMood='sad'; endGame('Boss Defeated!'); }
-  // expose for console debug if needed
   window.bossDefeated = bossDefeated;
 
- function addScore(kind, count = 1){
-  const add = (kind === 'red' ? SCORE.red : SCORE.green) * count;
-  totalScore += add;
-  levelScore += add;
-  updateHUD();
-
-  if (boss) {
-    if (levelScore >= target) bossDefeated();     // win boss
-  } else {
-    if (levelScore >= target) levelUp();          // normal levels
+  function addScore(kind, count = 1){
+    const add = (kind === 'red' ? SCORE.red : SCORE.green) * count;
+    totalScore += add;
+    levelScore += add;
+    updateHUD();
+    if (boss) { if (levelScore >= target) bossDefeated(); }
+    else { if (levelScore >= target) levelUp(); }
   }
-}
 
   // germs
   const germs = new Set();
@@ -553,19 +587,16 @@ function levelUp(){
   // control
   function startGame(){ applySettings(); resetGame(); running=true; paused=false; overlay.style.display='none'; last=performance.now(); requestAnimationFrame(loop); startTipLoop(); }
   function startNextLevel(){ bumpDifficulty(); time=timeMax; energy=ENERGY_FULL; setCoach('normal'); overlay.style.display='none'; running=true; paused=false; last=performance.now(); }
- function startBoss(){
-  boss = true;
-  running = true;
-  paused = false;
-  overlay.style.display = 'none';
-  time = Math.max(45, timeMax);
-
-  // reuse Level Score bar for the boss phase
-  levelScore = 0;
-  target = BOSS_TARGET;
-  updateHUD();
-}
-
+  function startBoss(){
+    boss = true;
+    running = true;
+    paused = false;
+    overlay.style.display = 'none';
+    time = Math.max(45, timeMax);
+    levelScore = 0;
+    target = BOSS_TARGET;
+    updateHUD();
+  }
   function endGame(title, reason){ running=false; gameOverTitle.textContent=title; finalScore.textContent=totalScore; finalLevel.textContent=boss?'Boss':level; lostImg.style.display=(reason==='energy')?'block':'none'; overlay.style.display='grid'; startPanel.style.display='none'; levelPanel.style.display='none'; bossPanel.style.display='none'; gameOverPanel.style.display='block'; }
 
   document.getElementById('startBtn').onclick = startGame;
