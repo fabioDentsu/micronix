@@ -26,6 +26,17 @@
   .gameLogo{position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:7; pointer-events:none;}
   .gameLogo img{height:80px; width:auto; display:block; filter:drop-shadow(0 8px 22px rgba(0,0,0,.35))}
   @media (max-width:720px){ .gameLogo img{height:44px} }
+  @media (max-width:720px){ .logo.bl img{height:14px} }
+   @media (max-width:720px){ .logo.tl img{height:14px} }
+      @media (max-width:720px){ .coach{margin-bottom: -46px; margin-right: -50px;} }
+       @media (max-width:720px){ .settings{margin-left: -350px;}} 
+       @media (max-width:720px){ .field{width: 100px;}} 
+       @media (max-width:720px){ .energy {width:14px; height:min(18vh, 100px); border-radius:20px; }} 
+        @media (max-width:720px){ .energy.i{width:14px; height:min(18vh, 100px); border-radius:20px; }}
+           @media (max-width:720px){ .power{width: 60px; right: 0;}}  
+               @media (max-width:720px){ .powers{opacity: 1;margin-right: -220px;}}  
+                  @media (max-width:720px){ .hud{margin-top: -50px; }}  
+                  @media (max-width:720px){ .bubble.bubble{ opacity: 0;}}  
 
   /* HUD (center top) */
   .hud{
@@ -351,10 +362,10 @@
   function showTip(){ const t = pick(TIPS); bubble.style.display='block'; bubble.querySelector('b').textContent=t[0]; tipText.textContent=t[1]; }
   let tipTimer=null; function startTipLoop(){ showTip(); clearInterval(tipTimer); tipTimer=setInterval(showTip, 9000); }
 
-  // mechanics
+  // -------------------------------------------------------------------------------------------------------------------------------------mechanics
   const SCORE = { green:10, red:20 };
-  const levelTarget = (n) => (n===1?100:(n===2?300:500));
-  const BOSS_TARGET = 600; // points needed to defeat boss
+  const levelTarget = (n) => (n===1?40:(n===2?100:200));
+  const BOSS_TARGET = 200; // points needed to defeat boss
   const ENERGY_FULL = 100, ENERGY_TTE = 20, ENERGY_DRAIN_PER_SEC = ENERGY_FULL/ENERGY_TTE;
 
   let running=false, paused=false, boss=false, bossMood='normal';
