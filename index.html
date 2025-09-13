@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Micronix</title>
+<style>
+  :root{ --ui-bg: rgba(12,22,36,.45); --glass: rgba(255,255,255,.12); --accent: #f0d83b; }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{
+    margin:0; overflow:hidden; font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial; color:#eaf6ff;
+    background:
+      radial-gradient(1200px 800px at 10% 10%, #0aa0d6 0%, rgba(10,160,214,0) 60%),
+      radial-gradient(900px 900px at 80% 20%, #0574b8 0%, rgba(5,116,184,0) 55%),
+      radial-gradient(1100px 900px at 30% 80%, #003a6e 0%, rgba(0,58,110,0) 60%),
+      linear-gradient(180deg, #00314f 0%, #001a2e 100%);
+  }
+  .stage{position:fixed; inset:0; width:100%; height:100%}
+  #bg{filter:blur(2px) saturate(120%)} #fx{pointer-events:none}
+
+  .logo{position:fixed; z-index:5; pointer-events:none; background:var(--ui-bg); border:1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(10px) saturate(140%); border-radius:14px; padding:10px 12px; box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .logo.tl{top:14px; left:14px} .logo.bl{bottom:14px; left:14px}
+  .logo img{display:block; height:28px; width:auto} .logo.bl img{height:30px}
+
+  .gameLogo{position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:7; pointer-events:none;}
+  .gameLogo img{height:80px; width:auto; display:block; filter:drop-shadow(0 8px 22px rgba(0,0,0,.35))}
+  @media (max-width:720px){ .gameLogo img{height:44px} }
+
+  /* HUD (center top) */
+  .hud{
+    position:fixed; left:50%; transform:translateX(-50%); top:110px; display:flex; gap:10px; align-items:center;
+    padding:10px 14px; border-radius:16px; background:var(--ui-bg); backdrop-filter: blur(10px) saturate(140%);
+    border:1px solid rgba(255,255,255,.14); box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:6; flex-wrap:wrap;
+  }
+  .pill{display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:var(--glass);
+    border:1px solid rgba(255,255,255,.18); font-weight:700}
+  .label{opacity:.75; font-weight:600} .value{font-variant-numeric: tabular-nums}
+  .thinBar{position:relative; width:160px; height:8px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18)}
+  .thinBar>i{position:absolute; inset:0; transform-origin:left center; background:linear-gradient(90deg,#7ed3ff,#8ef6a0)}
+
+  /* Right powers panel (now shows Score + Time at top) */
+  .powers{
+    position:fixed; right:14px; top:86px; z-index:6; display:flex; flex-direction:column; gap:10px;
+    padding:12px; border-radius:16px; background:var(--ui-bg); border:1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35); min-width:280px;
+  }
+  .sideHead{display:flex; align-items:center; gap:12px}
+  .badge{padding:6px 10px; border-radius:999px; background:var(--glass); border:1px solid rgba(255,255,255,.18); font-weight:800}
+  .timeBig{margin-left:auto; font-size:22px; font-weight:800; letter-spacing:.4px; min-width:44px; text-align:right}
+
+  /* Neon glassmorphism power buttons */
+  .power{
+    position:relative; border:none; padding:12px 18px; border-radius:999px; font-weight:800; color:#eaf6ff;
+    background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
+    backdrop-filter: blur(8px); letter-spacing:.2px; isolation:isolate; overflow:hidden;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  }
+  .power:before,.power:after{content:""; position:absolute; inset:-40%; border-radius:50%; filter:blur(22px); z-index:-1; opacity:.85}
+  .power:hover{transform:translateY(-1px);filter:saturate(2.1)}
+  .power:active{transform:translateY(0) scale(.98); filter:saturate(5.1)}
+  .power.pain:before{background:radial-gradient(closest-side,#ff4d8d,#ff2f6b22);}
+  .power.pain:after {background:conic-gradient(from 140deg,#ff6aa7aa,#ff2f6b00 40%); mix-blend-mode:screen}
+  .power.infect:before{background:radial-gradient(closest-side,#3ad0ff,#1eb1ff22);}
+  .power.infect:after {background:conic-gradient(from 140deg,#5ddfffaa,#1eb1ff00 40%); mix-blend-mode:screen}
+  .cooldown{opacity:.55; filter:saturate(.6) grayscale(.18)}
+  .btn{cursor:pointer; border:none; padding:10px 14px; border-radius:12px; font-weight:800; color:#06253a; background:var(--accent)}
+  .btn.ghost{background:transparent; color:#d1eaff; border:1px solid rgba(255,255,255,.22)} .btn.small{padding:8px 10px; font-size:13px}
+  .btn.ghost:hover{background: rgba(67, 224, 15, 0.22); color:#d1eaff; border:1px solid rgba(67, 224, 15, 0.62)} .btn.small{padding:8px 10px; font-size:13px}
+
+  /* Settings (left) */
+  .settings{
+    position:fixed; left:14px; top:50%; transform:translateY(-50%); width:min(92vw,320px); z-index:6;
+    background:var(--ui-bg); border:1px solid rgba(255,255,255,.18); border-radius:16px; padding:12px; backdrop-filter: blur(10px); box-shadow:0 14px 40px rgba(0,0,0,.4)
+  }
+  .settings h3{margin:4px 2px 10px}
+  .field{display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center; margin:8px 0}
+  .field label{font-size:13px; opacity:.9} .field output{font-variant-numeric: tabular-nums}
+  input[type=range]{width:100%} .settings .row{justify-content:space-between}
+  .btn.applied{background:#39e68b; color:#06321f}
+
+  /* Bottom-right: Coach + Energy */
+  .rightStack{
+    position:fixed; right:18px; bottom:18px; z-index:6; display:flex; flex-direction:row-reverse; align-items:flex-end; gap:12px;
+  }
+  .coach{display:flex; align-items:center; justify-content:center; width:min(40vw, 420px); height:min(38vh, 360px);}
+  .coach img{max-width:100%; max-height:100%; object-fit:contain; display:block; transform:scale(1.35); transition:opacity .35s}
+  .coach img.fade{opacity:0}
+  .energy{width:34px; height:min(38vh, 300px); border-radius:30px; padding:2px; background:var(--ui-bg); border:1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(8px); display:flex; align-items:flex-end; box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  .energy i{display:block; width:100%; height:100%; border-radius:38px; transform-origin:bottom center; transform:scaleY(1); background:#41d36a;}
+
+  /* Info bubble — aligned to right above character */
+  .bubble{
+    position:fixed; right:18px; bottom:calc(18px + 300px + 16px); max-width:min(40vw, 420px);
+    background:var(--ui-bg); border:1px solid rgba(255,255,255,.18); backdrop-filter: blur(10px);
+    border-radius:16px; padding:14px 16px; font-size:15px; box-shadow:0 12px 30px rgba(0,0,0,.35); opacity:.98; z-index:6; display:none;
+  }
+  .bubble b{display:block; font-size:18px; margin-bottom:4px}
+
+  /* Overlays */
+  .card{position:fixed; inset:0; display:grid; place-items:center; pointer-events:none; z-index:7}
+  .panel{pointer-events:auto; min-width:min(92vw,560px); background:var(--ui-bg); border:1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(12px) saturate(160%); border-radius:20px; padding:22px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.45)}
+  .panel h1{margin:2px 0 10px; font-size:28px} .panel p{margin:6px 0 14px; opacity:.85}
+  .row{display:flex; justify-content:center; gap:10px; margin-top:10px}
+</style>
+</head>
+<body>
+  <canvas id="bg" class="stage"></canvas>
+  <canvas id="game" class="stage"></canvas>
+  <canvas id="fx" class="stage"></canvas>
+
+  <div class="logo tl"><img src="logo-1.svg" alt="Logo"></div>
+  <div class="logo bl"><img src="AIS.png" alt="AIS Logo"></div>
+  <div class="gameLogo"><img src="micronix.png" alt="Micronix"></div>
+
+  <!-- HUD (center top) -->
+  <div class="hud" id="hud">
+    <div class="pill"><span class="label">Level</span><span class="value" id="level">1</span></div>
+    <!-- Level Score (moved here) -->
+    <div class="pill">
+      <span class="label">Level Score</span>
+      <div class="thinBar" style="margin:0 8px;"><i id="nextFill" style="transform:scaleX(0)"></i></div>
+      <span class="value" id="nextText">0 / 150</span>
+    </div>
+  </div>
+
+  <!-- Powers panel (right) header now shows Score + Time -->
+  <div class="powers">
+    <div class="sideHead">
+      <div class="badge">Score <span id="score">0</span></div>
+      <div class="timeBig" id="timeBig">60</div>
+    </div>
+    <button class="power pain"   id="btnPain">Pain relief</button>
+    <button class="power infect" id="btnInfect">Infection removal</button>
+    <div class="row" style="gap:10px">
+      <button class="btn small" id="pauseBtn">Pause</button>
+      <button class="btn small ghost" id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <!-- Settings (left) -->
+  <aside class="settings" id="settings">
+    <h3>Settings</h3>
+    <div class="field"><label for="sizeMin">Min Size (px)</label><output id="sizeMinOut">56</output><input id="sizeMin" type="range" min="32" max="120" step="2" value="56"></div>
+    <div class="field"><label for="sizeMax">Max Size (px)</label><output id="sizeMaxOut">120</output><input id="sizeMax" type="range" min="48" max="160" step="2" value="120"></div>
+    <div class="field"><label for="speedMul">Speed Multiplier</label><output id="speedMulOut">0.85x</output><input id="speedMul" type="range" min="0.5" max="2.0" step="0.05" value="0.85"></div>
+    <div class="field"><label for="spawnR">Spawn Rate (germs/sec)</label><output id="spawnROut">0.80</output><input id="spawnR" type="range" min="0.4" max="5" step="0.05" value="0.80"></div>
+    <div class="field"><label for="maxConc">Max Concurrent</label><output id="maxConcOut">40</output><input id="maxConc" type="range" min="10" max="160" step="5" value="40"></div>
+    <div class="field"><label for="timeLimit">Time Limit (sec)</label><output id="timeLimitOut">75</output><input id="timeLimit" type="range" min="20" max="120" step="5" value="75"></div>
+    <div class="row"><button class="btn" id="applyBtn">Apply</button><button class="btn ghost" id="toggleBtn">Hide</button></div>
+  </aside>
+
+  <!-- Bottom-right -->
+  <div class="rightStack">
+    <div class="energy"><i id="energyFill"></i></div>
+    <div class="coach" id="coachBox"><img id="coachImg" src="normal.png" alt="Coach"></div>
+  </div>
+
+  <!-- Info bubble -->
+  <div class="bubble" id="bubble"><b>Hygiene tip</b><span id="tipText">Washing hands and avoiding face-touching lowers the chance of spreading germs.</span></div>
+
+  <!-- Overlays -->
+  <div class="card" id="overlay">
+    <div class="panel" id="startPanel">
+      <h1>Micronix</h1>
+      <p>Squash germs to score. Use your 2 powers. Keep Energy up—don’t go 20s without a hit.</p>
+      <div class="row"><button class="btn" id="startBtn">Start</button></div>
+    </div>
+    <div class="panel" id="levelPanel" style="display:none">
+      <h1 id="levelTitle">Level Up!</h1>
+      <p>Great job! Difficulty will increase.</p>
+      <img id="levelImg" src="levelvid.webp" alt="Level Animation" style="max-width:260px; width:60%; display:block; margin:8px auto 2px;border-radius:20px;">
+      <div class="row"><button class="btn" id="nextLevelBtn">Start Next Level</button></div>
+    </div>
+    <div class="panel" id="bossPanel" style="display:none">
+      <h1>Boss Level</h1>
+      <p>Beat the boss to win! (visual placeholder active)</p>
+      <div class="row"><button class="btn" id="startBossBtn">Start Boss</button></div>
+    </div>
+    <div class="panel" id="gameOverPanel" style="display:none">
+      <h1 id="gameOverTitle">Time Up!</h1>
+      <p><span id="finalScore">0</span> pts • Reached Level <span id="finalLevel">1</span></p>
+      <img id="lostImg" src="lost-vid.webp" alt="Energy Lost" style="max-width:260px; width:60%; display:none; margin:8px auto 2px; border-radius:20px;">
+      <div class="row">
+        <button class="btn" id="playAgainBtn">Play Again</button>
+        <button class="btn ghost" id="closePanelBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const rand = (a, b) => a + Math.random() * (b - a);
+  const pick = arr => arr[(Math.random()*arr.length)|0];
+
+  const bg = document.getElementById('bg');
+  const game = document.getElementById('game');
+  const fx = document.getElementById('fx');
+  const bgx = bg.getContext('2d');
+  const gtx = game.getContext('2d');
+  const fxx = fx.getContext('2d');
+
+  function sizeCanvases(){
+    [bg, game, fx].forEach(c=>{
+      c.width = Math.floor(innerWidth * DPR);
+      c.height = Math.floor(innerHeight * DPR);
+      c.style.width = innerWidth+'px';
+      c.style.height = innerHeight+'px';
+    });
+  }
+  sizeCanvases(); addEventListener('resize', sizeCanvases);
+
+  // assets
+  const imgGreen = new Image(); imgGreen.src = 'bacteria.png';
+  const imgGreenDead  = new Image(); imgGreenDead.src  = 'bacteria-dead.png';
+  const imgRed   = new Image(); imgRed.src = 'bacteria-Infla.png';
+  const imgRedDead  = new Image(); imgRedDead.src  = 'bacteria-infla-dead.png';
+  const bossImg = new Image(); bossImg.src = 'boss.png';
+  const bossSadImg = new Image(); bossSadImg.src = 'boss-sad.png';
+
+  // bokeh
+  const bokeh = [];
+  function initBokeh(){
+    bokeh.length = 0;
+    const n = Math.round((innerWidth*innerHeight)/28000);
+    for(let i=0;i<n;i++){
+      bokeh.push({ x: rand(0, bg.width), y: rand(0, bg.height),
+        r: rand(8*DPR, 28*DPR), a: rand(.08,.22),
+        vx: rand(-.08,.08)*DPR, vy: rand(-.04,.04)*DPR });
+    }
+  }
+  function drawBokeh(dt, now){
+    bgx.clearRect(0,0,bg.width,bg.height);
+
+    // boss visual (slow float) drawn BEHIND the bokeh dots
+    if(boss){
+      const base = bossMood==='sad' ? bossSadImg : bossImg;
+      if(base.complete){
+        const scale = 0.9 + 0.04*Math.sin(now*0.0012);
+        const w = base.width  * scale * DPR;
+        const h = base.height * scale * DPR;
+        const cx = bg.width/2, cy = bg.height/2 + 20*DPR;
+        bgx.save();
+        bgx.globalAlpha = 0.95;
+        bgx.translate(cx, cy);
+        bgx.drawImage(base, -w/2, -h/2, w, h);
+        bgx.restore();
+      }
+    }
+
+    for(const p of bokeh){
+      p.x += p.vx*dt; p.y += p.vy*dt;
+      if(p.x < -50 || p.x>bg.width+50) p.vx*=-1;
+      if(p.y < -50 || p.y>bg.height+50) p.vy*=-1;
+      bgx.beginPath(); bgx.globalAlpha = p.a; bgx.fillStyle = '#bfeaff';
+      bgx.arc(p.x,p.y,p.r,0,Math.PI*2); bgx.fill();
+    }
+    bgx.globalAlpha = 1;
+  }
+  initBokeh(); addEventListener('resize', initBokeh);
+
+  // UI refs
+  const hud = {
+    scoreEl: document.getElementById('score'),
+    levelEl: document.getElementById('level'),
+    timeBig: document.getElementById('timeBig'),
+    nextText: document.getElementById('nextText'),
+    nextFill: document.getElementById('nextFill'),
+  };
+  const overlay = document.getElementById('overlay');
+  const startPanel = document.getElementById('startPanel');
+  const levelPanel = document.getElementById('levelPanel');
+  const bossPanel = document.getElementById('bossPanel');
+  const gameOverPanel = document.getElementById('gameOverPanel');
+  const gameOverTitle = document.getElementById('gameOverTitle');
+  const finalScore = document.getElementById('finalScore');
+  const finalLevel = document.getElementById('finalLevel');
+  const lostImg = document.getElementById('lostImg');
+
+  // buttons
+  const btnPain   = document.getElementById('btnPain');
+  const btnInfect = document.getElementById('btnInfect');
+  const pauseBtn  = document.getElementById('pauseBtn');
+  const restartBtn= document.getElementById('restartBtn');
+
+  // settings
+  const controls = {
+    sizeMin: document.getElementById('sizeMin'),
+    sizeMax: document.getElementById('sizeMax'),
+    speedMul: document.getElementById('speedMul'),
+    spawnR:  document.getElementById('spawnR'),
+    maxConc: document.getElementById('maxConc'),
+    timeLimit: document.getElementById('timeLimit'),
+    outs: {
+      sizeMin: document.getElementById('sizeMinOut'),
+      sizeMax: document.getElementById('sizeMaxOut'),
+      speedMul: document.getElementById('speedMulOut'),
+      spawnR: document.getElementById('spawnROut'),
+      maxConc: document.getElementById('maxConcOut'),
+      timeLimit: document.getElementById('timeLimitOut')
+    },
+    applyBtn: document.getElementById('applyBtn'),
+    toggleBtn: document.getElementById('toggleBtn'),
+    box: document.getElementById('settings')
+  };
+  function syncOutputs(){
+    controls.outs.sizeMin.textContent=controls.sizeMin.value;
+    controls.outs.sizeMax.textContent=controls.sizeMax.value;
+    controls.outs.speedMul.textContent=(+controls.speedMul.value).toFixed(2)+'x';
+    controls.outs.spawnR.textContent=(+controls.spawnR.value).toFixed(2);
+    controls.outs.maxConc.textContent=controls.maxConc.value;
+    controls.outs.timeLimit.textContent=controls.timeLimit.value;
+  }
+  syncOutputs();
+  ['sizeMin','sizeMax','speedMul','spawnR','maxConc','timeLimit'].forEach(id=>controls[id].addEventListener('input', syncOutputs));
+  function applySettings(){
+    params.minSize=+controls.sizeMin.value;
+    params.maxSize=Math.max(+controls.sizeMax.value, params.minSize+4);
+    controls.sizeMax.value=params.maxSize;
+    params.speedMul=+controls.speedMul.value;
+    params.spawnRate=+controls.spawnR.value;
+    params.maxConcurrent=+controls.maxConc.value;
+    timeMax=+controls.timeLimit.value;
+    if(!running) hud.timeBig.textContent = timeMax;
+
+    const b=controls.applyBtn, old=b.textContent;
+    b.textContent='Applied ✓'; b.classList.add('applied');
+    setTimeout(()=>{ b.textContent=old; b.classList.remove('applied'); },1200);
+  }
+  controls.applyBtn.onclick=applySettings;
+  controls.toggleBtn.onclick=()=>{ const hidden=controls.box.style.display==='none'; controls.box.style.display=hidden?'block':'none'; controls.toggleBtn.textContent=hidden?'Hide':'Show'; };
+
+  // coach + bubble
+  const coachImg = document.getElementById('coachImg');
+  const coachSrcs = { normal:'normal.png', healthy:'healthy.png', sick:'sick.png', level:'level.png', superhealthy:'superhealthy.png', supersick:'supersick.png' };
+  let coachState='normal';
+  function setCoach(state){ if(coachState===state) return; coachState=state; coachImg.classList.add('fade'); setTimeout(()=>{ coachImg.src=coachSrcs[state]; coachImg.classList.remove('fade'); },180); }
+  const bubble = document.getElementById('bubble');
+  const tipText = document.getElementById('tipText');
+  const TIPS = [
+    ["Hygiene tip","Washing hands and avoiding face-touching lowers the chance of spreading germs."],
+    ["Inflammation","Redness and swelling are signs the immune system is reacting."],
+    ["Helpful vs harmful","Many bacteria are beneficial; others can drive infection and inflammation."],
+    ["Hydration","Fluids keep the throat moist and support recovery from irritation."]
+  ];
+  function showTip(){ const t = pick(TIPS); bubble.style.display='block'; bubble.querySelector('b').textContent=t[0]; tipText.textContent=t[1]; }
+  let tipTimer=null; function startTipLoop(){ showTip(); clearInterval(tipTimer); tipTimer=setInterval(showTip, 9000); }
+
+  // mechanics
+  const SCORE = { green:10, red:20 };
+  const levelTarget = (n) => (n===1?100:(n===2?300:500));
+  const BOSS_TARGET = 600; // points needed to defeat boss
+  const ENERGY_FULL = 100, ENERGY_TTE = 20, ENERGY_DRAIN_PER_SEC = ENERGY_FULL/ENERGY_TTE;
+
+  let running=false, paused=false, boss=false, bossMood='normal';
+  let time=60, timeMax=60; let spawnCooldown=0;
+  let level=1, totalScore=0, levelScore=0, target=levelTarget(1);
+  let energy=ENERGY_FULL, health=0;
+
+  const CD = { pain:25000, infect:20000 };
+  let lastUse = { pain:-1e9, infect:-1e9 };
+
+  const params = {
+    minSize:+controls.sizeMin.value, maxSize:+controls.sizeMax.value,
+    speedMul:+controls.speedMul.value, spawnRate:+controls.spawnR.value,
+    maxConcurrent:+controls.maxConc.value
+  };
+
+  function energyColor(p){ const lerp=(a,b,t)=>a+(b-a)*t;
+    function mix(c1,c2,t){const a=parseInt(c1.slice(1),16), b=parseInt(c2.slice(1),16);
+      const r=Math.round(lerp((a>>16)&255,(b>>16)&255,t)), g=Math.round(lerp((a>>8)&255,(b>>8)&255,t)), bb=Math.round(lerp(a&255,b&255,t)); return `rgb(${r},${g},${bb})`; }
+    return p>=0.5 ? mix('#41d36a','#ffd166',(1-p)/0.5) : mix('#ffd166','#ff6b6b',(0.5-p)/0.5);
+  }
+
+  function updateHUD(){
+    hud.scoreEl.textContent = totalScore;
+    hud.levelEl.textContent = boss ? 'Boss' : level;
+    hud.timeBig.textContent = Math.ceil(time);
+    const p = Math.max(0, Math.min(1, energy/ENERGY_FULL));
+    const ef = document.getElementById('energyFill'); ef.style.transform=`scaleY(${p})`; ef.style.background=energyColor(p);
+    const kp = Math.max(0, Math.min(1, levelScore/target));
+    hud.nextFill.style.transform = `scaleX(${kp})`;
+    hud.nextText.textContent = `${levelScore} / ${target}`;
+  }
+  function resetCooldowns(){ lastUse={pain:-1e9,infect:-1e9}; [btnPain,btnInfect].forEach(b=>{ b.disabled=false; b.classList.remove('cooldown'); }); }
+  function resetGame(){
+    totalScore=0; levelScore=0; level=1; target=levelTarget(1);
+    time=timeMax; energy=ENERGY_FULL; health=0; boss=false; bossMood='normal';
+    germs.clear(); pops.length=0; confetti.length=0;
+    setCoach('normal'); resetCooldowns(); updateHUD();
+  }
+  function bumpDifficulty(){
+    controls.speedMul.value = Math.min(2.0, (+controls.speedMul.value + 0.06)).toFixed(2);
+    controls.spawnR.value   = Math.min(5.0, (+controls.spawnR.value + 0.10)).toFixed(2);
+    controls.timeLimit.value = Math.max(40, (+controls.timeLimit.value - 1));
+    syncOutputs(); applySettings();
+  }
+function showLevelBreak(completedLevel){
+  running = false; paused = false;
+  startPanel.style.display = 'none';
+  gameOverPanel.style.display = 'none';
+  bossPanel.style.display = 'none';
+  levelPanel.style.display = 'block';
+  document.getElementById('levelTitle').textContent = `Level ${completedLevel} Complete!`;
+  overlay.style.display = 'grid';
+}
+
+function levelUp(){
+  const completed = level;  // capture the level you just finished
+  if (level >= 3) {         // finishing level 3 -> Boss
+    startBossPlaceholder();
+    return;
+  }
+  level++;                  // move up to the next level
+  levelScore = 0;
+  target = levelTarget(level);
+  showLevelBreak(completed);  // show correct level number
+}
+
+  function startBossPlaceholder(){ running=false; paused=false; boss=true; bossMood='normal'; levelPanel.style.display='none'; startPanel.style.display='none'; gameOverPanel.style.display='none'; bossPanel.style.display='block'; overlay.style.display='grid'; }
+
+  // public-ish helper to mark boss defeated
+  function bossDefeated(){ bossMood='sad'; endGame('Boss Defeated!'); }
+  // expose for console debug if needed
+  window.bossDefeated = bossDefeated;
+
+ function addScore(kind, count = 1){
+  const add = (kind === 'red' ? SCORE.red : SCORE.green) * count;
+  totalScore += add;
+  levelScore += add;
+  updateHUD();
+
+  if (boss) {
+    if (levelScore >= target) bossDefeated();     // win boss
+  } else {
+    if (levelScore >= target) levelUp();          // normal levels
+  }
+}
+
+  // germs
+  const germs = new Set();
+  class Germ{
+    constructor(kind='green'){
+      const w=game.width, h=game.height, edge=['top','bottom','left','right'][(Math.random()*4)|0], margin=40*DPR;
+      const sizePx=rand(+controls.sizeMin.value, +controls.sizeMax.value), size=sizePx*DPR; this.w=size; this.h=size;
+      if(edge==='left'){this.x=-margin; this.y=rand(0,h); this.vx=rand(.4,1.1)*DPR; this.vy=rand(-.6,.6)*DPR;}
+      if(edge==='right'){this.x=w+margin; this.y=rand(0,h); this.vx=rand(-1.1,-.4)*DPR; this.vy=rand(-.6,.6)*DPR;}
+      if(edge==='top'){this.x=rand(0,w); this.y=-margin; this.vx=rand(-.6,.6)*DPR; this.vy=rand(.4,1.1)*DPR;}
+      if(edge==='bottom'){this.x=rand(0,w); this.y=h+margin; this.vx=rand(-.6,.6)*DPR; this.vy=rand(-1.1,-.4)*DPR;}
+      this.kind=kind; this.speedScale=+controls.speedMul.value*(1+0.04*(level-1)); this.rot=Math.random()*Math.PI*2; this.vr=rand(-.002,.002)*DPR;
+      this.img=(kind==='red')?imgRed:imgGreen; this.dead=false; this.deadTime=0; this.hitboxScale=.42; this.floatPhase=rand(0,6.28);
+    }
+    update(dt){ const float=Math.sin(performance.now()*0.003+this.floatPhase)*.15*DPR; this.x+=this.vx*this.speedScale*dt; this.y+=(this.vy+float)*this.speedScale*dt; this.rot+=this.vr*dt;
+      if(this.x<-200*DPR||this.x>game.width+200*DPR||this.y<-200*DPR||this.y>game.height+200*DPR) germs.delete(this);
+      if(this.dead){ this.deadTime+=dt; if(this.deadTime>450) germs.delete(this); } }
+    draw(ctx){ const s=this.w; ctx.save(); ctx.translate(this.x,this.y); ctx.rotate(this.rot); ctx.drawImage(this.img,-s/2,-s/2,s,s); ctx.restore(); }
+    contains(px,py){ const dx=px-this.x, dy=py-this.y, r=this.w*this.hitboxScale; return (dx*dx+dy*dy)<=r*r; }
+    squash(){ if(this.dead) return false; this.dead=true; this.img=(this.kind==='red')?imgRedDead:imgGreenDead; this.vx=this.vy=this.vr=0; spawnPop(this.x,this.y,this.w*0.55); return true; }
+  }
+
+  // FX
+  const pops=[]; function spawnPop(x,y,r){ pops.push({x,y,r,t:0}); }
+  const confetti=[]; function burstConfetti(){ const N=110; for(let i=0;i<N;i++){ confetti.push({ x:rand(fx.width*0.25,fx.width*0.75), y:rand(-40,40), vx:rand(-0.2,0.2)*DPR, vy:rand(0.05,0.35)*DPR, s:rand(6*DPR,14*DPR), a:rand(0.8,1), color:pick(['#ffcd4d','#8ef6a0','#7ed3ff','#ff8ab6','#fff']), spin:rand(-1,1), t:0}); } }
+
+  function drawFX(dt){
+    for(let i=pops.length-1;i>=0;i--){ const p=pops[i]; p.t+=dt; const k=p.t/420; if(k>=1){pops.splice(i,1);continue;} fxx.globalAlpha=1-k; fxx.lineWidth=6*DPR*(1-k); fxx.strokeStyle='rgba(255,255,255,.8)'; fxx.beginPath(); fxx.arc(p.x,p.y,p.r*k,0,Math.PI*2); fxx.stroke(); fxx.globalAlpha=1; }
+    for(let i=confetti.length-1;i>=0;i--){ const c=confetti[i]; c.vy+=0.0006*dt; c.vx+=Math.sin(c.t*0.02)*0.005*dt; c.x+=c.vx*dt; c.y+=c.vy*dt; c.t+=dt; fxx.save(); fxx.translate(c.x,c.y); fxx.rotate(c.t*0.01*c.spin); fxx.globalAlpha=c.a; fxx.fillStyle=c.color; fxx.fillRect(-c.s/2,-c.s/2,c.s,c.s*0.6); fxx.restore(); if(c.y>fx.height+40) confetti.splice(i,1); }
+  }
+
+  // input
+  function toCanvas(evt, canvas){ const rect=canvas.getBoundingClientRect(); const x=((evt.touches?evt.touches[0].clientX:evt.clientX)-rect.left)*DPR; const y=((evt.touches?evt.touches[0].clientY:evt.clientY)-rect.top)*DPR; return {x,y}; }
+  function evaluateCoach(){ if(health>=55)setCoach('superhealthy'); else if(health>=20)setCoach('healthy'); else if(health<=-55)setCoach('supersick'); else if(health<=-20)setCoach('sick'); else setCoach('normal'); }
+  function onPress(evt){
+    if(!running||paused) return;
+    const {x,y}=toCanvas(evt,game); let hit=null; germs.forEach(g=>{ if(!hit&&g.contains(x,y)) hit=g; });
+    if(hit && hit.squash()){ addScore(hit.kind,1); health=clamp(health+18,-100,100); energy=clamp(energy+4,0,ENERGY_FULL); hud.scoreEl.animate([{transform:'scale(1)'},{transform:'scale(1.1)'},{transform:'scale(1)'}],{duration:300,easing:'cubic-bezier(.2,.8,.2,1)'}); updateHUD(); }
+    else{ health=clamp(health-20,-100,100); game.animate([{transform:'translateX(0)'},{transform:'translateX(-3px)'},{transform:'translateX(3px)'},{transform:'translateX(0)'}],{duration:120}); }
+    evaluateCoach();
+  }
+  game.addEventListener('mousedown', onPress);
+  game.addEventListener('touchstart', e=>onPress(e), {passive:true});
+
+  function canUse(which){ return performance.now() - lastUse[which] >= CD[which]; }
+  function setCooldown(btn, ready){ btn.classList.toggle('cooldown', !ready); btn.disabled=!ready; }
+
+  // powers
+  btnPain.onclick = ()=>{ if(!running||!canUse('pain')||paused) return; lastUse.pain=performance.now(); energy=ENERGY_FULL; updateHUD(); };
+  btnInfect.onclick = ()=>{
+    if(!running||!canUse('infect')||paused) return;
+    lastUse.infect=performance.now();
+    let reds=0; germs.forEach(g=>{ if(g.kind==='red' && !g.dead){ g.squash(); reds++; } });
+    if(reds>0){ const pts=Math.min(reds*SCORE.red,200); totalScore+=pts; levelScore+=pts; updateHUD(); if(!boss && levelScore>=target) levelUp(); }
+  };
+
+  function updatePowerCooldowns(){ if(paused) return; const now=performance.now();
+    setCooldown(btnPain,   now-lastUse.pain   >= CD.pain);
+    setCooldown(btnInfect, now-lastUse.infect >= CD.infect);
+  }
+
+  // loop
+  let last=performance.now();
+  function loop(){
+    const now=performance.now(); const dt=Math.max(0, Math.min(66, now-last)); last=now;
+
+    drawBokeh(dt, now);
+    fxx.clearRect(0,0,fx.width,fx.height);
+    drawFX(dt);
+
+    if(!running){ requestAnimationFrame(loop); return; }
+
+    gtx.clearRect(0,0,game.width,game.height);
+
+    if(!paused){
+      spawnCooldown -= dt;
+      const spawnEvery = 1000 / (+controls.spawnR.value);
+      if(spawnCooldown<=0 && germs.size < (+controls.maxConc.value)){
+        const kind = (Math.random()<0.35) ? 'red' : 'green';
+        germs.add(new Germ(kind));
+        if(Math.random()<0.45 && germs.size < (+controls.maxConc.value))
+          germs.add(new Germ(Math.random()<0.35?'red':'green'));
+        spawnCooldown = rand(spawnEvery*.6, spawnEvery*1.2);
+      }
+      germs.forEach(g=> g.update(dt));
+      time -= dt/1000;
+      energy = clamp(energy - (ENERGY_DRAIN_PER_SEC*(dt/1000)), 0, ENERGY_FULL);
+      if(time<=0){ time=0; updateHUD(); endGame('Time Up!'); }
+      else if(energy<=0){ updateHUD(); endGame('Out of Energy!','energy'); }
+    }
+
+    germs.forEach(g=> g.draw(gtx));
+
+    updatePowerCooldowns();
+    updateHUD();
+    requestAnimationFrame(loop);
+  }
+
+  // control
+  function startGame(){ applySettings(); resetGame(); running=true; paused=false; overlay.style.display='none'; last=performance.now(); requestAnimationFrame(loop); startTipLoop(); }
+  function startNextLevel(){ bumpDifficulty(); time=timeMax; energy=ENERGY_FULL; setCoach('normal'); overlay.style.display='none'; running=true; paused=false; last=performance.now(); }
+ function startBoss(){
+  boss = true;
+  running = true;
+  paused = false;
+  overlay.style.display = 'none';
+  time = Math.max(45, timeMax);
+
+  // reuse Level Score bar for the boss phase
+  levelScore = 0;
+  target = BOSS_TARGET;
+  updateHUD();
+}
+
+  function endGame(title, reason){ running=false; gameOverTitle.textContent=title; finalScore.textContent=totalScore; finalLevel.textContent=boss?'Boss':level; lostImg.style.display=(reason==='energy')?'block':'none'; overlay.style.display='grid'; startPanel.style.display='none'; levelPanel.style.display='none'; bossPanel.style.display='none'; gameOverPanel.style.display='block'; }
+
+  document.getElementById('startBtn').onclick = startGame;
+  document.getElementById('playAgainBtn').onclick = startGame;
+  document.getElementById('closePanelBtn').onclick = ()=>{ overlay.style.display='grid'; startPanel.style.display='block'; levelPanel.style.display='none'; bossPanel.style.display='none'; gameOverPanel.style.display='none'; };
+  document.getElementById('nextLevelBtn').onclick = startNextLevel;
+  document.getElementById('startBossBtn').onclick = ()=>{ bossPanel.style.display='none'; overlay.style.display='none'; startBoss(); };
+
+  pauseBtn.onclick = ()=>{ if(!running) return; paused=!paused; pauseBtn.textContent = paused ? 'Resume' : 'Pause'; last=performance.now(); };
+  restartBtn.onclick = ()=>{ running=false; overlay.style.display='grid'; resetGame(); startPanel.style.display='block'; levelPanel.style.display='none'; bossPanel.style.display='none'; gameOverPanel.style.display='none'; };
+
+  setInterval(()=>{ if(running && !paused && germs.size>+controls.maxConc.value*1.3){ endGame('Petri Dish Overrun!'); } }, 2000);
+
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
