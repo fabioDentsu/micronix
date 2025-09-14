@@ -38,7 +38,7 @@
   .pill{display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:var(--glass);
     border:1px solid rgba(255,255,255,.18); font-weight:700}
   .label{opacity:.75; font-weight:600} .value{font-variant-numeric: tabular-nums}
-  .thinBar{position:relative; width:160px; height:8px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18)}
+  .thinBar{position:relative; width:60px; height:8px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.18)}
   .thinBar>i{position:absolute; inset:0; transform-origin:left center; background:linear-gradient(90deg,#7ed3ff,#8ef6a0)}
 
   /* Right powers panel (includes Score + Time) */
@@ -139,9 +139,11 @@
     .settings{width:min(92vw, 340px)}
     .settings.collapsed{transform:translate(-110%, -50%); opacity:0}
     .powers{top: 72%; bottom: 0;}
-    .coach{margin-right: 180px;width: 150px; margin-bottom: -20px;}
+    .coach{margin-right: 230px;width: 150px; margin-bottom: -40px;}
     .logo.bl.tile{width: 150px;right: 0px;top: 15px; bottom: 610px; margin-left: 200px ; opacity: 0;}
-     .logo.bl img{width: 120px;height: auto;right: 0px;}
+    .logo.bl img{width: 120px;height: auto;right: 0px;}
+    .bubble{opacity: 0;}
+     .thinBar{position:relative; width:200px; height:8px; border-radius:999px; overflow:hidden;}
   }
 </style>
 </head>
@@ -161,7 +163,7 @@
   <!-- HUD (center top) -->
   <div class="hud" id="hud">
     <div class="pill"><span class="label">Level</span><span class="value" id="level">1</span></div>
-    <div class="pill">
+    <div class="pill" >
       <span class="label">Level Score</span>
       <div class="thinBar" style="margin:0 8px;"><i id="nextFill" style="transform:scaleX(0)"></i></div>
       <span class="value" id="nextText">0 / 150</span>
