@@ -65,13 +65,13 @@
   .power.pain:before{background:radial-gradient(closest-side,#ff4d8d,#ff2f6b22);} .power.pain:after {background:conic-gradient(from 140deg,#ff6aa7aa,#ff2f6b00 40%); mix-blend-mode:screen}
   .power.infect:before{background:radial-gradient(closest-side,#3ad0ff,#1eb1ff22);} .power.infect:after {background:conic-gradient(from 140deg,#5ddfffaa,#1eb1ff00 40%); mix-blend-mode:screen}
   .cooldown{opacity:.55; filter:saturate(.6) grayscale(.18)}
-  .btn{cursor:pointer; border:none; padding:10px 14px; border-radius:12px; font-weight:800; color:#06253a; background:var(--accent)}
+  .btn{cursor:pointer; border:none; padding:10px 40px; border-radius:12px; font-weight:800; color:#06253a; background:var(--accent)}
   .btn.ghost{background:transparent; color:#d1eaff; border:1px solid rgba(255,255,255,.22)} .btn.small{padding:8px 10px; font-size:13px}
   .btn.ghost:hover{background: rgba(67, 224, 15, 0.22); color:#d1eaff; border:1px solid rgba(67, 224, 15, 0.62)} .btn.small{padding:8px 10px; font-size:13px}
 
   /* Settings (left) – collapsible */
   .settings{
-    position:fixed; left:14px; top:50%; transform:translateY(-50%); width:min(92vw,320px); z-index:6;
+    position:fixed; left:14px; top:50%; transform:translateY(-50%); width:min(92vw,320px); z-index:9;
     background:var(--ui-bg); border:1px solid rgba(255,255,255,.18); border-radius:16px; padding:12px; backdrop-filter: blur(10px); box-shadow:0 14px 40px rgba(0,0,0,.4);
     transition: transform .22s ease, opacity .22s ease;
   }
@@ -87,7 +87,7 @@
     position:fixed; top:14px; left:14px; z-index:7; width:46px; height:46px; border-radius:12px; border:1px solid rgba(255,255,255,.18);
     background:var(--ui-bg); backdrop-filter: blur(10px) saturate(140%); display:grid; place-items:center; cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,.35);
   }
-  .hamburger i,.hamburger i:before,.hamburger i:after{content:""; display:block; width:22px; height:2px; background:#eaf6ff; border-radius:2px; transition:transform .2s ease, opacity .2s ease}
+  .hamburger i,.hamburger i:before,.hamburger i:after{content:""; display:block; width:22px; height:2px; background:#eaf6ff;  transition:transform .2s ease, opacity .2s ease}
   .hamburger i:before{transform:translateY(-6px)} .hamburger i:after{transform:translateY(6px)}
   .hamburger[aria-expanded="true"] i{background:transparent}
   .hamburger[aria-expanded="true"] i:before{transform:rotate(45deg)} .hamburger[aria-expanded="true"] i:after{transform:rotate(-45deg)}
@@ -127,11 +127,12 @@
   @media (max-width: 720px){
     .gameLogo img{height:44px}
     .pill {width: auto;}
-    .hud{top:64px; gap:8px; padding:8px 10px; left: 105px; width: 180px;}
+    .hud{top:64px; gap:8px; padding:8px 10px; left: 105px; width: 180px; font-size: 10pt;}
     .thinBar{width:120px}
     #LS-pill {width: 160px;}
     .powers{right:12px; top:64px; min-width:150px; padding:8px}
-    .power{padding:12px 5px; width: 170px;}
+    
+    .power{padding:10px 5px; width: 110px;}
     .timeBig{font-size:18px; min-width:38px}
     .rightStack{right:12px; bottom:12px; gap:10px}
     .coach{width:min(55vw, 300px); height:min(32vh, 240px)}
@@ -141,9 +142,13 @@
     .settings{width:min(92vw, 340px)}
     .settings.collapsed{transform:translate(-110%, -50%); opacity:0}
     .coach{margin-right: 230px;width: 150px; margin-bottom: -40px;}
-    .logo.bl.tile{position: relative;opacity: 1; margin-left:64%; margin-top: 30px; width: 130px; }
+    .logo.bl.tile{position: relative;opacity: 1; margin-left:64%; margin-top: 30px; width: 125px; }
     .logo.bl img{width: 100px;height: auto;right: 0px;}
 
+
+.btn small {padding: 0px;}
+    .sideHead {font-size: 8pt;}
+.timeBig {font-size: 10pt;}
 
 
    .bubble{
@@ -151,10 +156,86 @@
     background:var(--ui-bg); border:1px solid rgba(255,255,255,.18); backdrop-filter: blur(10px);
     border-radius:16px; padding:14px 16px; font-size:15px; box-shadow:0 12px 30px rgba(0,0,0,.35); opacity:.98; z-index:6; display:none;
   }
-    .row {margin-top: 3px;}
+    .row {margin-top: 3px; }
+   
      .thinBar{position:relative; width:200px; height:8px; border-radius:999px; overflow:hidden;}
   }
+
+  /* ========================= */
+/* MOBILE LAYOUT — HUD + POWERS ONLY */
+/* ========================= */
+@media (max-width: 720px){
+
+  /* --- HUD: full-width slim top bar --- */
+  .hud{
+    position:fixed;
+    top:64px; left:14px; right:14px; transform:none;
+    display:flex; align-items:center; gap:8px;
+    padding:8px 10px; border-radius:12px;
+    width:auto; max-width:none;
+    font-size:10px;
+  }
+  .hud .pill{ padding:6px 8px }
+  .hud .pill .label{ display:none }           /* shorten labels */
+  .hud .pill:first-child::before{
+    content:"Lv"; opacity:.75; font-weight:600; margin-right:6px;
+  }
+  #LS-pill::before{
+    content:"XP"; opacity:.75; font-weight:600; margin-right:6px;
+  }
+  .hud .thinBar{ width:96px; height:6px }     /* tighter bar */
+
+  /* --- POWERS: second bar under HUD, grid like the mockup --- */
+  .powers{
+    position:fixed;
+    left:14px; right:14px; top:112px;         /* directly under HUD */
+    min-width:0; width:auto;
+    padding:8px; border-radius:12px; gap:8px;
+
+    display:grid;
+    grid-template-columns: auto 1fr auto auto; /* badge | flex | pause | restart */
+    grid-template-rows: auto auto;             /* row1 + row2 */
+    grid-template-areas:
+      "badge .    pause   restart"
+      "time  .    pain    infect";
+    align-items:center;
+  }
+
+  /* Let inner wrappers expose their children to the grid */
+  .sideHead{ display:contents }
+  .row{ display:contents }
+
+  /* Place items on the grid */
+  .badge{ grid-area:badge; padding:4px 8px; font-weight:700 }
+  .timeBig{
+    grid-area:time; justify-self:center;
+    font-size:22px; font-weight:800; min-width:auto;
+  }
+  #pauseBtn{ grid-area:pause }
+  #restartBtn{ grid-area:restart }
+  .power.pain{ grid-area:pain }
+  .power.infect{ grid-area:infect }
+
+  /* Compact controls */
+  .power{ padding:8px 10px; font-size:12px; border-radius:12px }
+  .btn.small{ padding:6px 10px; font-size:12px }
+}
+
+/* Extra tight phones */
+@media (max-width: 480px){
+  .hud{ font-size:9px; padding:6px 8px; gap:6px }
+  .hud .thinBar{ width:84px }
+
+  .powers{ padding:7px; gap:6px; top:108px }
+  .badge{ font-size:10px; padding:3px 6px }
+  .timeBig{ font-size:20px }
+  .power{ padding:7px 9px; font-size:11px }
+  .btn.small{ padding:6px 8px; font-size:11px }
+}
+
 </style>
+
+
 </head>
 <body>
   <canvas id="bg" class="stage"></canvas>
@@ -182,13 +263,13 @@
   <!-- Powers panel (right) -->
   <div class="powers">
     <div class="sideHead">
-      <div class="badge">Bacteria<span id="score">0</span></div>
+      <div class="badge">Bacteria: <span id="score">0</span></div>
       <div class="timeBig" id="timeBig">60</div>
     </div>
     <button class="power pain"   id="btnPain">Pain relief</button>
-    <button class="power infect" id="btnInfect">Infection removal</button>
+    <button class="power infect" id="btnInfect">Disinfection</button>
     <div class="row" style="gap:5px">
-      <button class="btn small" id="pauseBtn">Pause</button>
+      <button class="btn small" id="pauseBtn" >Pause</button>
       <button class="btn small ghost" id="restartBtn">Restart</button>
     </div>
   </div>
