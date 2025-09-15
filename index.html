@@ -127,9 +127,9 @@
   @media (max-width: 720px){
     .gameLogo img{height:44px}
     .pill {width: auto;}
-    .hud{top:64px; gap:8px; padding:8px 10px; left: 115px; width: 200px;}
+    .hud{top:64px; gap:8px; padding:8px 10px; left: 105px; width: 180px;}
     .thinBar{width:120px}
-    #LS-pill {width: 180px;}
+    #LS-pill {width: 160px;}
     .powers{right:12px; top:64px; min-width:150px; padding:8px}
     .power{padding:12px 5px; width: 170px;}
     .timeBig{font-size:18px; min-width:38px}
@@ -141,8 +141,11 @@
     .settings{width:min(92vw, 340px)}
     .settings.collapsed{transform:translate(-110%, -50%); opacity:0}
     .coach{margin-right: 230px;width: 150px; margin-bottom: -40px;}
-    .logo.bl.tile{width: 150px;right: 0px;top: 15px; bottom: 610px; margin-left: 200px ; opacity: 0;}
-    .logo.bl img{width: 120px;height: auto;right: 0px;}
+    .logo.bl.tile{position: relative;opacity: 1; margin-left:64%; margin-top: 30px; width: 130px; }
+    .logo.bl img{width: 100px;height: auto;right: 0px;}
+
+
+
    .bubble{
     position:fixed; right:40px; bottom:10px; max-width:min(56vw, 640px);
     background:var(--ui-bg); border:1px solid rgba(255,255,255,.18); backdrop-filter: blur(10px);
@@ -170,7 +173,7 @@
   <div class="hud" id="hud">
     <div class="pill"><span class="label">Level</span><span class="value" id="level">1</span></div>
     <div class="pill" id="LS-pill" >
-      <span class="label">Level Score</span>
+      <span class="label">Score</span>
       <div class="thinBar" style="margin:0 8px;"><i id="nextFill" style="transform:scaleX(0)"></i></div>
       <span class="value" id="nextText">0 / 150</span>
     </div>
@@ -179,7 +182,7 @@
   <!-- Powers panel (right) -->
   <div class="powers">
     <div class="sideHead">
-      <div class="badge">Score <span id="score">0</span></div>
+      <div class="badge">Bacteria<span id="score">0</span></div>
       <div class="timeBig" id="timeBig">60</div>
     </div>
     <button class="power pain"   id="btnPain">Pain relief</button>
