@@ -129,7 +129,7 @@
     .pill {width: auto;}
     .hud{top:64px; gap:8px; padding:8px 10px; left: 115px; width: 200px;}
     .thinBar{width:120px}
-#LS-pill {width: 180px;}
+    #LS-pill {width: 180px;}
     .powers{right:12px; top:64px; min-width:150px; padding:8px}
     .power{padding:12px 5px; width: 170px;}
     .timeBig{font-size:18px; min-width:38px}
@@ -144,11 +144,11 @@
     .logo.bl.tile{width: 150px;right: 0px;top: 15px; bottom: 610px; margin-left: 200px ; opacity: 0;}
     .logo.bl img{width: 120px;height: auto;right: 0px;}
    .bubble{
-    position:fixed; right:40px; bottom:10px; max-width:min(50vw, 520px);
+    position:fixed; right:40px; bottom:10px; max-width:min(56vw, 640px);
     background:var(--ui-bg); border:1px solid rgba(255,255,255,.18); backdrop-filter: blur(10px);
     border-radius:16px; padding:14px 16px; font-size:15px; box-shadow:0 12px 30px rgba(0,0,0,.35); opacity:.98; z-index:6; display:none;
   }
-    .row {margin-top: -3px;}
+    .row {margin-top: 3px;}
      .thinBar{position:relative; width:200px; height:8px; border-radius:999px; overflow:hidden;}
   }
 </style>
@@ -215,7 +215,7 @@
   <div class="card" id="overlay">
     <div class="panel" id="startPanel">
       <h1>Micronix</h1>
-      <p>Squash germs to score. Use your 2 powers. Keep Energy up—don’t go 20s without a hit.</p>
+      <p>Squash germs to score. Use your Septabene powers. Keep your energy bar up.</p>
       <div class="row"><button class="btn" id="startBtn">Start</button></div>
     </div>
     <div class="panel" id="levelPanel" style="display:none">
@@ -226,7 +226,7 @@
     </div>
     <div class="panel" id="bossPanel" style="display:none">
       <h1>Boss Level</h1>
-      <p>Beat the boss to win! (visual placeholder active)</p>
+      <p>Beat the boss and get healthy!</p>
       <div class="row"><button class="btn" id="startBossBtn">Start Boss</button></div>
     </div>
     <div class="panel" id="gameOverPanel" style="display:none">
@@ -412,10 +412,17 @@
   const bubble = document.getElementById('bubble');
   const tipText = document.getElementById('tipText');
   const TIPS = [
-    ["Hygiene tip","Washing hands and avoiding face-touching lowers the chance of spreading germs."],
-    ["Inflammation","Redness and swelling are signs the immune system is reacting."],
-    ["Helpful vs harmful","Many bacteria are beneficial; others can drive infection and inflammation."],
-    ["Hydration","Fluids keep the throat moist and support recovery from irritation."]
+["Pain relief","Sore throat pain can be eased with Septabene’s anesthetic effect."],
+["Dual action","Septabene reduces both inflammation and fights bacteria in the throat."],
+["Early use","Taking Septabene at the first sign of irritation may shorten recovery."],
+["Voice care","By soothing throat pain, Septabene supports clearer speech during illness."],
+["Local action","Septabene works directly where it hurts, targeting the throat lining."],
+["Less strain","Easing pain and swelling reduces coughing and discomfort while swallowing."],
+["Infection control","Septabene helps slow bacterial growth, lowering risk of complications."],
+["Short illness phase","Using Septabene during acute sore throat can speed up the healing window."],
+["Comfort support","Relief from burning and scratchy sensations improves overall rest."],
+["Immune partner","By reducing symptoms, Septabene supports the body’s immune fight."]
+
   ];
   function showTip(){ const t = pick(TIPS); bubble.style.display='block'; bubble.querySelector('b').textContent=t[0]; tipText.textContent=t[1]; }
   let tipTimer=null; function startTipLoop(){ showTip(); clearInterval(tipTimer); tipTimer=setInterval(showTip, 9000); }
