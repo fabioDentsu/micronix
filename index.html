@@ -126,17 +126,25 @@
   }
   @media (max-width: 720px){
     .gameLogo img{height:44px}
-    .hud{top:64px; gap:8px; padding:8px 10px}
+    .pill {width: auto;}
+    .hud{top:64px; gap:8px; padding:8px 10px; left: 120px; width: 200px;}
     .thinBar{width:120px}
-    .powers{right:12px; top:58px; min-width:210px; padding:10px}
-    .power{padding:10px 14px}
+#LS-pill {width: 180px;}
+    .powers{right:12px; top:58px; min-width:150px; padding:10px}
+    .power{padding:20px 5px; width: 140px;}
     .timeBig{font-size:18px; min-width:38px}
     .rightStack{right:12px; bottom:12px; gap:10px}
     .coach{width:min(55vw, 300px); height:min(32vh, 240px)}
     .energy{width:16px; height:min(22vh, 120px); border-radius:16px}
-    .bubble{display:none} /* keep tips off on small screens to avoid overlap */
+    .bubble{} /* keep tips off on small screens to avoid overlap */
     /* settings collapsed by default on small devices */
-   
+    .settings{width:min(92vw, 340px)}
+    .settings.collapsed{transform:translate(-110%, -50%); opacity:0}
+    .coach{margin-right: 230px;width: 150px; margin-bottom: -40px;}
+    .logo.bl.tile{width: 150px;right: 0px;top: 15px; bottom: 610px; margin-left: 200px ; opacity: 0;}
+    .logo.bl img{width: 120px;height: auto;right: 0px;}
+    .bubble{opacity: 100;}
+     .thinBar{position:relative; width:200px; height:8px; border-radius:999px; overflow:hidden;}
   }
 </style>
 </head>
@@ -156,7 +164,7 @@
   <!-- HUD (center top) -->
   <div class="hud" id="hud">
     <div class="pill"><span class="label">Level</span><span class="value" id="level">1</span></div>
-    <div class="pill" >
+    <div class="pill" id="LS-pill" >
       <span class="label">Level Score</span>
       <div class="thinBar" style="margin:0 8px;"><i id="nextFill" style="transform:scaleX(0)"></i></div>
       <span class="value" id="nextText">0 / 150</span>
